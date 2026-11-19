@@ -7,9 +7,9 @@
 | Учасник | Частина |
 |---|---|
 | Систалюк Артем (teamlead) | налаштування pytest (`pytest.ini`, `tests/conftest.py`, `tests/helpers.py`), unit тести `api/utils.py` і `api/errors.py` (`tests/test_utils.py`), integration тести обробки помилок (`tests/test_errors.py`), `TESTING.md`, вимірювання покриття |
-| *імʼя* | товари: `tests/test_products.py` |
-| *імʼя* | замовлення: `tests/test_orders.py` |
-| *імʼя* | клієнти та відгуки: `tests/test_customers.py` |
+| *Марчук Максим* | товари: `tests/test_products.py` |
+| *Кубський Максим* | замовлення: `tests/test_orders.py` |
+| *Мельник Віталій* | клієнти та відгуки: `tests/test_customers.py` |
 
 ## Запуск тестів
 
@@ -49,7 +49,7 @@ Fixture `app` у `tests/conftest.py` перед кожним тестом під
 
 Unit тести перевіряють окремі функції без бази даних і вебсервера.
 
-### `tests/test_utils.py` (Систалюк Артем)
+### `tests/test_utils.py`
 
 | Тест | Що перевіряє | Очікуваний результат |
 |---|---|---|
@@ -76,13 +76,30 @@ Unit тести перевіряють окремі функції без баз
 
 ### Тести товарів, замовлень, клієнтів
 
-TODO: кожен учасник додає сюди таблицю для свого файлу (`tests/test_products.py`, `tests/test_orders.py`, `tests/test_customers.py`).
+#### `tests/test_products.py`
+
+| Тест | Що перевіряє | Очікуваний результат |
+|---|---|---|
+| `test_validate_product_valid_has_no_errors` | коректні дані | помилок немає |
+| `test_validate_product_empty_data_has_errors` | порожні дані | є помилки |
+| `test_validate_product_required_field_missing` (параметризований) | відсутнє `name` або `category` | помилка по цьому полю |
+| `test_validate_product_blank_string_is_error` | порожній рядок і пробіли | помилка |
+| `test_validate_product_length_boundaries` | довжина 1 / 100 / 101 | 101 символ не проходить |
+| `test_validate_product_description_length_boundaries` | опис 0 / 1000 / 1001 | 1001 символ не проходить |
+| `test_validate_product_price_boundaries` | ціна 0, 0.01, 70, -0.01, -1 | від'ємна ціна не проходить |
+| `test_validate_product_price_must_be_number` | ціна рядок, None, список | помилка по `price` |
+| `test_validate_product_is_available_must_be_boolean` | `is_available` не булеве | помилка по `is_available` |
+| `test_validate_product_partial_*` | часткове оновлення (`partial=True`) | одне поле ок, порожній PATCH помилка |
+| `test_product_to_dict_returns_dict_with_fields` | перетворення запису у словник | словник з потрібними полями |
+| `test_shop_validate_product_valid_vs_invalid_differ` | `_validate_product(form)` | різний результат для коректної й помилкової форми |
+
+TODO: кожен учасник додає сюди таблицю для свого файлу (`tests/test_orders.py`, `tests/test_customers.py`).
 
 ## Integration тести
 
 Integration тести надсилають запити до API через тестовий клієнт Flask і перевіряють код відповіді та тіло JSON.
 
-### `tests/test_errors.py` (Систалюк Артем)
+### `tests/test_errors.py`
 
 | Тест | Запит | Очікуваний код відповіді |
 |---|---|---|
@@ -102,6 +119,28 @@ Integration тести надсилають запити до API через т�
 | `test_isolation_*` (2 тести) | тест створює клієнта, наступний тест читає список | наступний тест бачить лише початкові дані |
 
 ### Тести товарів, замовлень, клієнтів
+
+#### `tests/test_products.py`
+
+| Тест | Запит | Очікуваний код |
+|---|---|---|
+| `test_v1_list_returns_seeded_products` | GET `/api/v1/products` | 200, 8 товарів |
+| `test_v1_get_seeded_product_cheesecake` | GET `/api/v1/products/4` | 200, Чізкейк, 95 |
+| `test_v1_filter_by_category` / `..._unknown_category_is_empty` | GET `?category=` | 200 |
+| `test_v1_search_by_q` | GET `?q=` | 200 |
+| `test_v1_filter_by_available` | GET `?available=true` | 200 |
+| `test_v1_post_creates_product` | POST з коректними даними | 201 |
+| `test_v1_post_*_returns_400` | POST порожній, ціна рядком, від'ємна ціна, без name | 400 |
+| `test_v1_post_name_length_boundary` | POST name 100 / 101 символ | 201 / 400 |
+| `test_v1_put_*` | PUT: успіх, невалідні дані, неіснуючий id | 200 / 400 / 404 |
+| `test_v1_patch_*` | PATCH: успіх, порожній, невалідний, неіснуючий id | 200 / 400 / 400 / 404 |
+| `test_v1_delete_removes_product` | DELETE, потім GET | 200 або 204, потім 404 |
+| `test_v1_delete_unknown_returns_404` | DELETE неіснуючого | 404 |
+| `test_v1_delete_product_in_order_returns_409` | DELETE товару із замовлення | 409 |
+| `test_v2_pagination_*` | GET `/api/v2/products?page=&per_page=` | 200 |
+| `test_v2_sort_by_price_ascending` | GET `?sort=price` | 200, за зростанням |
+| `test_v2_min_price_*`, `test_v2_max_price_*`, `test_v2_price_range_*` | фільтри за ціною | 200 |
+| `test_v2_invalid_params_return_400` (параметризований) | некоректні `page`, `per_page`, `min_price`, `max_price` | 400 |
 
 TODO: кожен учасник додає сюди таблицю для свого файлу.
 
