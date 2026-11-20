@@ -240,7 +240,9 @@ Integration тести надсилають запити до API через т�
 
 ![Результат pytest клієнтів](docs/pytest-customers.png)
 
-### ![Результат всіх тестів](docs/pytest-all.png)
+### Результат усіх pytest тестів:
+
+![Результат всіх тестів](docs/pytest-all.png)
 
 ### Висновки
 
