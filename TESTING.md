@@ -7,9 +7,9 @@
 | Учасник | Частина |
 |---|---|
 | Систалюк Артем (teamlead) | налаштування pytest (`pytest.ini`, `tests/conftest.py`, `tests/helpers.py`), unit тести `api/utils.py` і `api/errors.py` (`tests/test_utils.py`), integration тести обробки помилок (`tests/test_errors.py`), `TESTING.md`, вимірювання покриття |
-| *Марчук Максим* | товари: `tests/test_products.py` |
-| *Кубський Максим* | замовлення: `tests/test_orders.py` |
-| *Мельник Віталій* | клієнти та відгуки: `tests/test_customers.py` |
+| Марчук Максим | товари: `tests/test_products.py` |
+| Кубський Максим | замовлення: `tests/test_orders.py` |
+| Мельник Віталій | клієнти та відгуки: `tests/test_customers.py` |
 
 ## Запуск тестів
 
